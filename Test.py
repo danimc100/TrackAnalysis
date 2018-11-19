@@ -52,3 +52,8 @@ def test_compare_track():
     p1 = Point(40.385232, -3.717565, None)
     p2 = Point(40.397629, -3.715830, None)
     print("Distancia: ", p1.get_distance(p2))
+
+
+def analysis_track_test():
+    pass
+
