@@ -58,11 +58,13 @@ class Track:
         self.segLst = []
         self.duration = timedelta()
         self.duration_movement = timedelta()
+        self.filename = ""
 
-    def load_gpx(self, file_name):
+    def load_gpx(self, filename):
         # Carga un track desde un fichero GPX
 
-        xmldoc = ElementTree.parse(file_name)
+        self.filename = filename
+        xmldoc = ElementTree.parse(filename)
         root = xmldoc.getroot()
 
         ns = root.tag.split('}')[0].strip('{').strip()

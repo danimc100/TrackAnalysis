@@ -56,7 +56,10 @@ def test_compare_track():
 
 
 def analysis_track_test():
-    filename_base = "DataBulk/2018-11-11T08_00_32+00_00_3153503214.gpx" # Madrid-Titulcia-Madrid
+    for f in glob.glob("DataBulk/*.gpx"):
+        print(f)
+
+    filename_base = "DataBulk/2018-11-11T08:00:32+00:00_3153503214.gpx" # Madrid-Titulcia-Madrid
     #filename_base = "DataBulk/2018-11-09T08_04_40+00_00_3149100690.gpx" # Madrid-Villaconelos-Madrid
 
     track_base = Track()
@@ -67,7 +70,8 @@ def analysis_track_test():
             track = Track()
             track.load_gpx(f)
             percentage = track_base.compare_segmented_track(track)
-            print("Comparando con",track.name," porcentaje de acierto: ",percentage)
+            if percentage > 50:
+                print("%s -> %s %f "%(track.filename,track.name,percentage))
             # if track_base.compare_segmented_track(track) > 90:
               #   print(f)
 
