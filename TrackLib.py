@@ -69,9 +69,14 @@ class Track:
         if len(ns) > 0:
             trkpt_tag = "{" + ns + "}trkpt"
             time_tag = "{" + ns + "}time"
+            name_tag = "{" + ns + "}name"
         else:
             trkpt_tag = "trkpt"
             time_tag = "time"
+            name_tag = "name"
+
+        for n in root.iter(name_tag):
+            self.name = n.text
 
         time_ref = None
         speed = 0
@@ -88,7 +93,10 @@ class Track:
                 delta_time = time - time_ref
                 self.duration = self.duration + delta_time
                 dist = last_point.get_distance(Point(lat, lon))
-                speed = dist / (delta_time.total_seconds() / 60 / 60)
+                if delta_time.total_seconds() > 0:
+                    speed = dist / (delta_time.total_seconds() / 60 / 60)
+                else:
+                    speed = 0
 
             if speed > self.SPEED_THRESHOLD_DETECTION:
                 self.duration_movement = self.duration_movement + delta_time
