@@ -60,6 +60,7 @@ class Track:
         self.segLst = []
         self.duration = timedelta()
         self.duration_movement = timedelta()
+        self.filename = ""
 
     def build_tag(self, tag):
         # Genera un tag xml en función del namespace
