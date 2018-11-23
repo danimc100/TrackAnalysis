@@ -100,7 +100,11 @@ class Track:
         for xml_point in root.iter(self.build_tag("trkpt")):
             lat = float(xml_point.attrib["lat"])
             lon = float(xml_point.attrib["lon"])
-            time = datetime.strptime(xml_point.find(self.build_tag("time")).text, self.TIME_PARSE)
+            t = xml_point.find(self.build_tag("time"))
+            if t is not None:
+                time = datetime.strptime(t.text, self.TIME_PARSE)
+            else:
+                time = None
 
             if time_ref is not None:
                 delta_time = time - time_ref
