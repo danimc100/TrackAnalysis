@@ -50,33 +50,45 @@ class Track:
     THRESHOLD_DISTANCE_DETECTION = 0.01
     SEGMENT_DISTANCE = 0.5
     SPEED_THRESHOLD_DETECTION = 1.5
+    GPX_NAMESPACE = "http://www.topografix.com/GPX/1/1"
+    TIME_PARSE = "%Y-%m-%dT%H:%M:%S.000Z"
 
     def __init__(self):
         self.name = ""
-        self.time = ""
+        self.time = None
         self.trkLst = []
         self.segLst = []
         self.duration = timedelta()
         self.duration_movement = timedelta()
 
-    def load_gpx(self, file_name):
-        # Carga un track desde un fichero GPX
+    def build_tag(self, tag):
+        # Genera un tag xml en función del namespace
+        return "{%s}%s" % (self.GPX_NAMESPACE, tag)
 
-        xmldoc = ElementTree.parse(file_name)
+    def load_gpx(self, filename):
+        # Carga un track desde un fichero GPX
+        xmldoc = ElementTree.parse(filename)
         root = xmldoc.getroot()
 
-        ns = root.tag.split('}')[0].strip('{').strip()
-        if len(ns) > 0:
-            trkpt_tag = "{" + ns + "}trkpt"
-            time_tag = "{" + ns + "}time"
-            name_tag = "{" + ns + "}name"
-        else:
-            trkpt_tag = "trkpt"
-            time_tag = "time"
-            name_tag = "name"
+        if root.tag != self.build_tag("gpx"):
+            print("Archivo GPX no es procesable.")
+            return
 
-        for n in root.iter(name_tag):
-            self.name = n.text
+        metadata = root.find(self.build_tag("metadata"))
+        if metadata is not None:
+            t = metadata.find(self.build_tag("time"))
+            if t is not None:
+                self.time = datetime.strptime(t.text, self.TIME_PARSE)
+            else:
+                self.time = None
+
+        trk = root.find(self.build_tag("trk"))
+        if trk is not None:
+            n = trk.find(self.build_tag("name"))
+            if n is not None:
+                self.name = n.text
+            else:
+                self.name = ""
 
         time_ref = None
         speed = 0
@@ -84,10 +96,10 @@ class Track:
         self.duration_movement = timedelta()
         last_point = None
         delta_time = timedelta()
-        for xml_point in root.iter(trkpt_tag):
+        for xml_point in root.iter(self.build_tag("trkpt")):
             lat = float(xml_point.attrib["lat"])
             lon = float(xml_point.attrib["lon"])
-            time = datetime.strptime(xml_point.find(time_tag).text, "%Y-%m-%dT%H:%M:%S.000Z")
+            time = datetime.strptime(xml_point.find(self.build_tag("time")).text, self.TIME_PARSE)
 
             if time_ref is not None:
                 delta_time = time - time_ref
@@ -111,7 +123,6 @@ class Track:
 
     def generate_segments(self):
         # Genera los segmentos de detección rápida.
-
         self.segLst = []
         star_index = 0
         end_index = 0
@@ -147,7 +158,6 @@ class Track:
 
     def compare_full_track(self, track):
         # Compara los tracks e indica el porcentaje de coincidencia. Lento
-
         success = 0.0
         error = 0.0
         found = False
@@ -175,7 +185,6 @@ class Track:
 
     def compare_segmented_track(self, track):
         # Compara los tracks e indica el porcentaje de coincidencia. Rápido
-
         success = 0.0
         error = 0.0
         found = False

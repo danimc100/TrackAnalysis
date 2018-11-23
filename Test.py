@@ -62,12 +62,17 @@ def analysis_track_test():
     track_base = Track()
     track_base.load_gpx(filename_base)
 
+    files = glob.glob("DataBulk/*.gpx")
+    i = 1
     for f in glob.glob("DataBulk/*.gpx"):
         if f != filename_base:
             track = Track()
             track.load_gpx(f)
             percentage = track_base.compare_segmented_track(track)
-            print("Comparando con",track.name," porcentaje de acierto: ",percentage)
-            # if track_base.compare_segmented_track(track) > 90:
-              #   print(f)
+            if percentage > 50:
+                print("EXITO %d/%d %s (%s) - %s %f" % (i, len(files), track.name, f, track.time, percentage))
+            else:
+                pass #print("ERROR %s (%s) - %s %f" % (i, len(files), track.name, f, track.time, percentage))
+        i = i + 1
+
 
